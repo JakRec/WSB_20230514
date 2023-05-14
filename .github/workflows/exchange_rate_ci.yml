@@ -10,7 +10,7 @@ on:
 
 jobs:
   test:
-    runs-on: windows-latest
+    runs-on: ubuntu-latest
     steps:
       - name: Check out repository
         uses: actions/checkout@v2
@@ -28,5 +28,18 @@ jobs:
       - name: Run tests
         run: |
 
-          set PYTHONPATH="${PYTHONPATH}:$(pwd)"
+          export PYTHONPATH="${PYTHONPATH}:$(pwd)"
           pytest tests/ -v
+
+      - name: Run SonarQube analysis
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        run: |
+          sonar-scanner \
+            -Dsonar.projectKey='marcingastol_SP4CH_DYD_SP_22-23_L_TESTER_GR3' \
+            -Dsonar.organization='marcingastol-t9' \
+            -Dsonar.sources='T9/Exchange rate/app/' \
+            -Dsonar.tests='T9/Exchange rate/tests/' \
+            -Dsonar.python.coverage.reportPaths=coverage.xml \
+            -Dsonar.host.url=https://sonarcloud.io \
+            -Dsonar.login=$SONAR_TOKEN
